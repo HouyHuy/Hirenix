@@ -1,0 +1,6 @@
+@Hirenix.API_HostAddress = http://localhost:5189
+
+GET {{Hirenix.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
