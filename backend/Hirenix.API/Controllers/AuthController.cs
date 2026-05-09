@@ -19,6 +19,26 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// Check if email already exists in the system.
+    /// </summary>
+    [HttpGet("check-email")]
+    public async Task<IActionResult> CheckEmailAsync([FromQuery] string email)
+    {
+        var result = await _authService.CheckEmailExistsAsync(email);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Check if phone number already exists in the system.
+    /// </summary>
+    [HttpGet("check-phone")]
+    public async Task<IActionResult> CheckPhoneAsync([FromQuery] string phone)
+    {
+        var result = await _authService.CheckPhoneExistsAsync(phone);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// Register a new user with email or phone. Sends OTP to verify email.
     /// </summary>
     [HttpPost("register")]

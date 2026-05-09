@@ -16,4 +16,6 @@ public interface IAuthService
     Task<ApiResponse<object>> ForgotPasswordAsync(ForgotPasswordRequestDto request);
     Task<ApiResponse<object>> ResetPasswordAsync(ResetPasswordRequestDto request);
     Task<ApiResponse<object>> ChangePasswordAsync(ulong userId, ChangePasswordRequestDto request);
+    Task<ApiResponse<EmailCheckResultDto>> CheckEmailExistsAsync(string email);
+    Task<ApiResponse<bool>> CheckPhoneExistsAsync(string phone);
 }

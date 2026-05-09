@@ -10,6 +10,7 @@ public interface IUserRepository
     Task<User?> GetByProviderIdAsync(string provider, string providerId);
     Task<User> CreateAsync(User user);
     Task UpdateAsync(User user);
+    Task DeleteAsync(ulong id);
     Task<bool> EmailExistsAsync(string email);
     Task<bool> PhoneExistsAsync(string phone);
 }
