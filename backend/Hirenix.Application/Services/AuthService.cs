@@ -45,17 +45,26 @@ public class AuthService : IAuthService
             if (!IsValidEmail(request.Email))
                 return ApiResponse<AuthResponseDto>.Fail("Invalid email format.");
 
-            if (await _userRepository.EmailExistsAsync(request.Email))
-                return ApiResponse<AuthResponseDto>.Fail("Email is already registered.");
+            // Kiểm tra email đã tồn tại
+            var existingUser = await _userRepository.GetByEmailAsync(request.Email.Trim().ToLowerInvariant());
+            if (existingUser != null)
+            {
+                // Nếu đã verify → không cho đăng ký lại
+                if (existingUser.IsVerified)
+                    return ApiResponse<AuthResponseDto>.Fail("Email is already registered.");
+                
+                // Nếu chưa verify → xóa account cũ để cho đăng ký lại
+                await _userRepository.DeleteAsync(existingUser.Id);
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(request.Phone))
         {
             if (!IsValidPhone(request.Phone))
-                return ApiResponse<AuthResponseDto>.Fail("Invalid phone number format.");
+                return ApiResponse<AuthResponseDto>.Fail("Số điện thoại không hợp lệ.");
 
             if (await _userRepository.PhoneExistsAsync(request.Phone))
-                return ApiResponse<AuthResponseDto>.Fail("Phone number is already registered.");
+                return ApiResponse<AuthResponseDto>.Fail("Số điện thoại này đã được sử dụng.");
         }
 
         // Tạo mã OTP 6 chữ số
@@ -390,6 +399,54 @@ public class AuthService : IAuthService
         await _userRepository.UpdateAsync(user);
 
         return ApiResponse<object>.Ok(null!, "Password changed successfully.");
+    }
+
+    // ─── CHECK PHONE EXISTS ──────────────────────────────────────────
+    public async Task<ApiResponse<bool>> CheckPhoneExistsAsync(string phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            return ApiResponse<bool>.Fail("Phone number is required.");
+
+        if (!IsValidPhone(phone))
+            return ApiResponse<bool>.Fail("Invalid phone number format.");
+
+        var exists = await _userRepository.PhoneExistsAsync(phone.Trim());
+        
+        return ApiResponse<bool>.Ok(exists, exists ? "Phone number is already registered." : "Phone number is available.");
+    }
+
+    // ─── CHECK EMAIL EXISTS ──────────────────────────────────────────
+    public async Task<ApiResponse<EmailCheckResultDto>> CheckEmailExistsAsync(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return ApiResponse<EmailCheckResultDto>.Fail("Email is required.");
+
+        if (!IsValidEmail(email))
+            return ApiResponse<EmailCheckResultDto>.Fail("Invalid email format.");
+
+        var user = await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
+        
+        if (user == null)
+        {
+            return ApiResponse<EmailCheckResultDto>.Ok(
+                new EmailCheckResultDto { Exists = false, IsVerified = false },
+                "Email is available."
+            );
+        }
+
+        if (user.IsVerified)
+        {
+            return ApiResponse<EmailCheckResultDto>.Ok(
+                new EmailCheckResultDto { Exists = true, IsVerified = true },
+                "Email is already registered."
+            );
+        }
+
+        // Email tồn tại nhưng chưa verify
+        return ApiResponse<EmailCheckResultDto>.Ok(
+            new EmailCheckResultDto { Exists = true, IsVerified = false },
+            "Email is registered but not verified."
+        );
     }
 
     // ─── HELPER: Social Login (dùng chung cho Google & Facebook) ─────
