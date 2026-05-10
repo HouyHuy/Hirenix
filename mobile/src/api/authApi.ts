@@ -21,6 +21,14 @@ export interface ResendOtpRequest {
   email: string;
 }
 
+export interface GoogleLoginRequest {
+  idToken: string;
+}
+
+export interface FacebookLoginRequest {
+  accessToken: string;
+}
+
 export const authApi = {
   checkEmail: async (email: string) => {
     const response = await apiClient.get(`/api/Auth/check-email?email=${encodeURIComponent(email)}`);
@@ -54,6 +62,16 @@ export const authApi = {
 
   logout: async (refreshToken: string) => {
     const response = await apiClient.post('/api/Auth/logout', { refreshToken });
+    return response.data;
+  },
+
+  googleLogin: async (idToken: string) => {
+    const response = await apiClient.post('/api/Auth/google', { idToken });
+    return response.data;
+  },
+
+  facebookLogin: async (accessToken: string) => {
+    const response = await apiClient.post('/api/Auth/facebook', { accessToken });
     return response.data;
   },
 };

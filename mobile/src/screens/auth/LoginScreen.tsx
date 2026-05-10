@@ -15,6 +15,8 @@ import { TextInput } from '../../components/TextInput';
 import { authApi } from '../../api/authApi';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
+import { useGoogleSignIn } from '../../hooks/useGoogleSignIn';
+import { useFacebookSignIn } from '../../hooks/useFacebookSignIn';
 
 interface LoginScreenProps {
   onBack: () => void;
@@ -44,6 +46,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
   const { login } = useAuth();
   const insets = useSafeAreaInsets();
   const { showToast } = useToast();
+  const { signInWithGoogle, loading: googleLoading } = useGoogleSignIn();
+  const { signInWithFacebook, loading: facebookLoading } = useFacebookSignIn();
 
   const handleLogin = async () => {
     if (!validate()) return;
@@ -158,13 +162,39 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
 
           {/* Social login */}
           <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-              <Ionicons name="logo-google" size={22} color="#DB4437" />
-              <Text style={styles.socialBtnText}>Google</Text>
+            <TouchableOpacity 
+              style={[styles.socialBtn, googleLoading && styles.socialBtnDisabled]} 
+              activeOpacity={0.85}
+              onPress={signInWithGoogle}
+              disabled={googleLoading || loading}
+            >
+              {googleLoading ? (
+                <View style={styles.socialBtnContent}>
+                  <Text style={styles.socialBtnText}>Đang xử lý...</Text>
+                </View>
+              ) : (
+                <View style={styles.socialBtnContent}>
+                  <Ionicons name="logo-google" size={22} color="#DB4437" />
+                  <Text style={styles.socialBtnText}>Google</Text>
+                </View>
+              )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.socialBtn} activeOpacity={0.85}>
-              <Ionicons name="logo-facebook" size={22} color="#1877F2" />
-              <Text style={styles.socialBtnText}>Facebook</Text>
+            <TouchableOpacity 
+              style={[styles.socialBtn, facebookLoading && styles.socialBtnDisabled]} 
+              activeOpacity={0.85}
+              onPress={signInWithFacebook}
+              disabled={facebookLoading || loading}
+            >
+              {facebookLoading ? (
+                <View style={styles.socialBtnContent}>
+                  <Text style={styles.socialBtnText}>Đang xử lý...</Text>
+                </View>
+              ) : (
+                <View style={styles.socialBtnContent}>
+                  <Ionicons name="logo-facebook" size={22} color="#1877F2" />
+                  <Text style={styles.socialBtnText}>Facebook</Text>
+                </View>
+              )}
             </TouchableOpacity>
           </View>
 
@@ -239,7 +269,13 @@ const styles = StyleSheet.create({
     flex: 1, height: 50, borderRadius: BorderRadius.md,
     borderWidth: 1, borderColor: Colors.gray200,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: Spacing.sm, backgroundColor: Colors.white,
+    backgroundColor: Colors.white,
+  },
+  socialBtnDisabled: {
+    opacity: 0.5,
+  },
+  socialBtnContent: {
+    flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
   },
   socialBtnText: {
     fontFamily: Typography.fontFamily.medium,
