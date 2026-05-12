@@ -34,7 +34,7 @@ public class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new("uid", user.Id.ToString()),
-            new(ClaimTypes.Role, user.Role.ToString().ToLower()), // Added role claim
+            new(ClaimTypes.Role, user.Role.ToString()), // Role claim with proper casing
         };
 
         if (!string.IsNullOrEmpty(user.Email))

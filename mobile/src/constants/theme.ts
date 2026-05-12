@@ -2,6 +2,7 @@
  * Hirenix Design System — Theme Constants
  * Based on UIUXDesign.md specification
  */
+import { Platform } from 'react-native';
 
 // ─── Brand Colors ───
 export const Colors = {
@@ -110,27 +111,33 @@ export const BorderRadius = {
 
 // ─── Shadows ───
 export const Shadows = {
-  elevation1: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  elevation2: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  elevation3: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.16,
-    shadowRadius: 16,
-    elevation: 8,
-  },
+  elevation1: Platform.OS === 'web'
+    ? { boxShadow: '0px 1px 4px rgba(0, 0, 0, 0.08)' }
+    : {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+      },
+  elevation2: Platform.OS === 'web'
+    ? { boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.12)' }
+    : {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        elevation: 4,
+      },
+  elevation3: Platform.OS === 'web'
+    ? { boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.16)' }
+    : {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.16,
+        shadowRadius: 16,
+        elevation: 8,
+      },
 } as const;
 
 // ─── Button Heights ───

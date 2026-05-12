@@ -1,6 +1,9 @@
 using System.Threading.RateLimiting;
 using Hirenix.Application;
 using Hirenix.Infrastructure;
+using Hirenix.Infrastructure.Data;
+using Hirenix.Infrastructure.Data.Seeders;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +60,24 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
+
+// ─── Database Seeding ────────────────────────────────────────────────
+if (args.Contains("--seed"))
+{
+    Console.WriteLine("\n🌱 Seed mode detected. Running database seeder...\n");
+    
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<HirenixDbContext>();
+    
+    // Ensure database is created
+    await context.Database.EnsureCreatedAsync();
+    
+    var seeder = new DatabaseSeeder(context);
+    await seeder.SeedAllAsync();
+    
+    Console.WriteLine("\n✅ Seeding completed. Exiting application.\n");
+    return; // Exit after seeding
+}
 
 // ─── Middleware Pipeline ─────────────────────────────────────────────
 app.UseCors("AllowAll");

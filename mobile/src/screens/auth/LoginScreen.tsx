@@ -65,6 +65,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({
             userId: response.data.userId,
             email: response.data.email,
             phone: response.data.phone,
+            role: response.data.role,
           }
         );
         showToast('Đăng nhập thành công!', 'success');

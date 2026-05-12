@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import { AuthNavigator } from './src/navigation/AuthNavigator';
 import { MainNavigator } from './src/navigation/MainNavigator';
+import { AdminNavigator } from './src/navigation/AdminNavigator';
 import { ToastProvider } from './src/contexts/ToastContext';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import {
@@ -70,17 +71,28 @@ export default function App() {
 
 // Separate component to use useAuth hook
 function AppContent() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return null; // Or a loading screen
   }
 
+  // Determine which navigator to show based on auth and role
+  const getNavigator = () => {
+    if (!isAuthenticated) {
+      return <AuthNavigator />;
+    }
+    
+    // Check if user is admin
+    const isAdmin = (user?.role || '').toLowerCase() === 'admin';
+    return isAdmin ? <AdminNavigator /> : <MainNavigator />;
+  };
+
   return (
     <View style={{ flex: 1 }}>
       <NavigationContainer>
         <StatusBar style="auto" />
-        {isAuthenticated ? <MainNavigator /> : <AuthNavigator />}
+        {getNavigator()}
       </NavigationContainer>
     </View>
   );

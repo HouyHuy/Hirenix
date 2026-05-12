@@ -52,7 +52,7 @@ public class AuthService : IAuthService
                 // Nếu đã verify → không cho đăng ký lại
                 if (existingUser.IsVerified)
                     return ApiResponse<AuthResponseDto>.Fail("Email is already registered.");
-                
+
                 // Nếu chưa verify → xóa account cũ để cho đăng ký lại
                 await _userRepository.DeleteAsync(existingUser.Id);
             }
@@ -411,7 +411,7 @@ public class AuthService : IAuthService
             return ApiResponse<bool>.Fail("Invalid phone number format.");
 
         var exists = await _userRepository.PhoneExistsAsync(phone.Trim());
-        
+
         return ApiResponse<bool>.Ok(exists, exists ? "Phone number is already registered." : "Phone number is available.");
     }
 
@@ -425,7 +425,7 @@ public class AuthService : IAuthService
             return ApiResponse<EmailCheckResultDto>.Fail("Invalid email format.");
 
         var user = await _userRepository.GetByEmailAsync(email.Trim().ToLowerInvariant());
-        
+
         if (user == null)
         {
             return ApiResponse<EmailCheckResultDto>.Ok(
@@ -511,6 +511,7 @@ public class AuthService : IAuthService
             UserId = user.Id,
             Email = user.Email,
             Phone = user.Phone,
+            Role = user.Role.ToString().ToLowerInvariant(),
             AccessToken = accessToken,
             RefreshToken = refreshTokenStr,
             AccessTokenExpiresAt = _tokenService.GetAccessTokenExpiry()
